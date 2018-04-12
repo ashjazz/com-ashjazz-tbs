@@ -39,6 +39,7 @@
 */
 
 $route['default_controller'] = "welcome";
+$route['test'] = "test/ash_test";
 $route['404_override'] = '';
 
 

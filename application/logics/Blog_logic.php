@@ -9,7 +9,7 @@ class Blog_logic extends MY_Logic
 
     public function get_money()
     {
-        $this->BlogModel->get_name();
-        // echo "No money for you!";
+        $ret = $this->BlogModel->get_name();
+        return $ret;
     }
 }

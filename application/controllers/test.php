@@ -9,21 +9,29 @@ class Test extends MY_Controller
         $this->load->model('Blog_model', 'BlogModel');
     }
 
-    public function index()
-    {
-        echo "Hello World!";
-    }
-
     public function ash_test()
     {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['name', 'string', 'null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+        // echo "<pre>"; print_r($get_data); echo "</pre>";
         // 加载对应的model和logic类
         $ret = $this->BlogLogic->get_money();
         $name_data = $ret['data'];
         $result_data = array(
-            'code' => 200,
-            'status' => 'success',
             'data' => $name_data,
         );
-        print json_encode($result_data);
+        $this->success($result_data);
+    }
+
+    public function array_test()
+    {
+        $data = array('h','Y','yi');
+        echo "<pre>"; print_r($data); echo "</pre>";
     }
 }

@@ -39,7 +39,12 @@
 */
 
 $route['default_controller'] = "welcome";
-$route['test'] = "test/ash_test";
+$route['test'] = "test/array_test";
+
+$route['sign_up'] = "user_center/sign_up";
+$route['sign_in'] = "user_center/sign_in";
+$route['set_user_account_info_more'] = 'user_center/set_user_account_info_more';
+
 $route['404_override'] = '';
 
 

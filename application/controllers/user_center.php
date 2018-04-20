@@ -32,7 +32,7 @@ class User_center extends MY_Controller
     }
 
     /*
-     *用户登录控制器
+     *用户登录
      */
     public function sign_in()
     {
@@ -70,6 +70,7 @@ class User_center extends MY_Controller
         $post_data = $this->getPostData();
         $rules = [
             ['uid', 'int', 'null' => false],
+            ['access_token', 'string', 'null' => false],
             ['location', 'string'],
             ['gender', 'int'],
             ['email', 'string'],
@@ -81,5 +82,36 @@ class User_center extends MY_Controller
         }
 
         $ret = $this->UserCenterLogic->set_user_account_info_more_logic($post_data);
+        if ($ret['status'] == true) {
+            return $this->success('修改成功！');
+        } else {
+            return $this->success($ret['msg']);
+        }
+    }
+
+    /*
+     *用户密码修改
+     */
+    public function reset_user_password()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['uid', 'int', 'null' => false],
+            ['password_old', 'string', 'null' => false],
+            ['password_new', 'string', 'null' => false],
+            ['password_new_check', 'string', 'null' => false],
+            ['access_token', 'string', 'null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->UserCenterLogic->set_user_password_logic($post_data);
+        if ($ret['status'] == true) {
+            return $this->success('修改成功！');
+        } else {
+            return $this->success($ret['msg']);
+        }
     }
 }

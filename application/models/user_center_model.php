@@ -80,7 +80,8 @@ class User_center_model extends MY_Model
         $uid = $account_info['uid'];
         if ($password_get == $password_query) {
             $access_token = date("YmdHis") . substr(microtime(), 2, 3) . rand(10, 99);
-            $sql = "UPDATE user_account_info_main SET access_token = ?";
+            $sql = sql_string(['access_token' => $access_token], 'update', 'user_account_info_main', 
+                ['mobile_phone' => $data['mobile_phone']]);
             $this->db->query($sql, array($access_token));
             return array(
                 'status' => true,
@@ -100,9 +101,21 @@ class User_center_model extends MY_Model
      * 修改用户信息
      *
      */
-    public function update_user_account_info($data)
+    public function update_user_account_info($data, $account_info_new)
     {
-        $field_string = sql_string($data, 'insert', 'user_account_info_main');
-        echo "<pre>"; print_r($field_string); echo "</pre>";
+        $uid = $data['uid'];
+        $field_string = sql_string($account_info_new, 'update', 'user_account_info_main', ['uid' => $uid]);
+        $query = $this->db->query($field_string);
+        if ($query == true) {
+            return array(
+                'status' => true,
+                'msg' => '修改成功！',
+            );
+        } else {
+            return array(
+                'status' => false,
+                'msg' => '修改失败，请重试',
+            );
+        }
     }
 }

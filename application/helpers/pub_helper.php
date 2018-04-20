@@ -21,24 +21,37 @@ function gen_response($success = true, $extra = null, $ret_code = 200)
     return $response;
 }
 
-function sql_string($data, $type = 'insert', $table_name)
+function sql_string($data, $type = 'insert', $table_name, $where = array())
 {
     $field_array = array_keys($data);
     $value_array = array_values($data);
-    $field_string = implode(',', $field_array);
-    
+
     switch ($type) {
         case 'insert':
+            $field_string = implode(',', $field_array);
             $value_string = implode("','", $value_array);
             $sql = "INSERT INTO $table_name ($field_string) VALUES ('$value_string')";
             break;
         case 'update':
-            
-            $sql = "UPDATE $table_name SET "
+            $query_array = [];
+            foreach ($data as $key => $value) {
+                $query_array[] = $key . "=" . "'$value'";
+            }
+            $query_string = implode(',', $query_array);
+            $sql = "UPDATE $table_name SET " . $query_string;
+            if (!empty($where)) {
+                $where_array = [];
+                foreach ($where as $field => $value) {
+                    $where_array[] = $field . "=" . "'$value'";
+                }
+                $where_string = implode(',', $where_array);
+            }
+            $sql = $sql . " where " . $where_string;
+            break;
         default:
             # code...
             break;
     }
-    
+
     return $sql;
 }

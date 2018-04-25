@@ -21,6 +21,13 @@ function gen_response($success = true, $extra = null, $ret_code = 200)
     return $response;
 }
 
+/**
+ * 获取验证状态
+ * @param $data更新、插入数据 索引数组
+ * @param $type 操作类型
+ * @param $table_name表名
+ * @param $where条件 
+ */
 function sql_string($data, $type = 'insert', $table_name, $where = array())
 {
     $field_array = array_keys($data);

@@ -15,6 +15,11 @@ class Goods_center_model extends MY_Model
         $count = $data['count'];
 
         $sql = "SELECT * FROM goods_info LIMIT $count OFFSET $start";
+        if (isset($data['key_word'])) {
+            $key_word = $data['key_word'];
+            $sql = "SELECT * FROM goods_info WHERE product_brandname_e like '%$key_word%' or product_name
+                like '%$key_word%' LIMIT $count OFFSET $start";
+        }
 
         $query = $this->db->query($sql);
         $goods_list = $query->result_array();
@@ -48,5 +53,26 @@ class Goods_center_model extends MY_Model
             'status' => false,
             'msg' => '发布商品失败',
         );
+    }
+
+    /*
+     * 根据gid获取商品信息
+     */
+    public function get_goods_info_by_gid($gid)
+    {
+        $sql = "SELECT * FROM goods_info WHERE gid = '$gid'";
+        $query = $this->db->query($sql);
+        $goods_info = $query->row_array();
+        if (!empty($goods_info)) {
+            return array(
+                'status' => true,
+                'data' => $goods_info,
+            );
+        } else {
+            return array(
+                'status' => false,
+                'msg' => '没有相关商品',
+            );
+        }
     }
 }

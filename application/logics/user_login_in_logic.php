@@ -30,7 +30,7 @@ class User_login_in_logic extends MY_Logic
         }
         return array(
             'status' => true,
-            'account_info' => $account_info['data'],
+            'data' => $account_info['data'],
         );
     }
 }

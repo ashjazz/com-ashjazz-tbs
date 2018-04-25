@@ -54,6 +54,9 @@ $route['reset_user_password'] = 'user_center/reset_user_password'; //更改密�
 $route['push_goods'] = "goods_center/push_goods"; //发布商品
 $route['goods_list'] = "goods_center/goods_list"; //商品列表
 
+/*商城相关*/
+$route['create_order'] = "mall_center/create_order"; //创建订单
+
 
 $route['404_override'] = '';
 

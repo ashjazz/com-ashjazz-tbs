@@ -17,6 +17,7 @@ class Goods_center extends MY_Controller
         $rules = [
             ['start', 'int', 'default' => 0],
             ['count', 'int', 'default' => 12],
+            ['key_word', 'string'],
         ];
         $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
         if ($verify->getVerifyStatus() === false) {

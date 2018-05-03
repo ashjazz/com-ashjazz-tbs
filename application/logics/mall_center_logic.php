@@ -78,8 +78,6 @@ class Mall_center_logic extends MY_Logic
             'seller_uid' => $account_info_seller['uid'],
             'buyer_uid' => $account_info_buyer['uid'],
             'goods_price' => $goods_info['goods_price'],
-            'pay_price' => $data['pay_price'],
-            'pay_channel' => $data['pay_channel'],
             'product_brandname_e' => $goods_info['product_brandname_e'],
             'product_name' => $goods_info['product_name'],
             'product_cover_image' => $goods_info['product_cover_image'],
@@ -95,5 +93,80 @@ class Mall_center_logic extends MY_Logic
 
         $ret = $this->MallCenterModel->create_order_model($order_info);
         return $ret;
+    }
+
+    /*
+     * 支付回调
+     */
+    public function pay_call_back_logic($data)
+    {
+        // 获取订单相关信息
+        $trade_info = $this->MallCenterModel->get_trade_order_info($data['trade_no']);
+        if ($trade_info['status'] == false) {
+            return array(
+                'status' => false,
+                'msg' => $trade_info['msg'],
+            );
+        } else {
+            $trade_info = $trade_info['data'];
+        }
+        $gid = $trade_info['gid'];
+
+        // 获取商品信息
+        $goods_info = $this->GoodsCenterModel->get_goods_info_by_gid($gid);
+        if ($goods_info['status'] == false) {
+            return array(
+                'status' => false,
+                'msg' => $goods_info['msg'],
+            );
+        } else {
+            $goods_info = $goods_info['data'];
+        }
+
+        // 获取商品库存
+        $goods_stock = $goods_info['goods_stock'];
+        $goods_stock_new = $goods_stock - 1;
+
+        if ($trade_info['trade_status'] != 2) {
+            return array(
+                'status' => false,
+                'msg' => '订单不是待付款状态',
+            );
+        }
+        $pay_time = date("Y-m-d H:m:s", time());
+
+        // 更新订单以及商品
+        $trade_info_update = [
+            'trade_no' => $data['trade_no'],
+            'pay_price' => $data['pay_price'],
+            'pay_channel' => $data['pay_channel'],
+            'trade_status' => 3,
+            'pay_time' => $pay_time,
+            'payment_vouchers' => $data['payment_vouchers'],
+        ];
+        $trade_update = $this->MallCenterModel->updata_trade_for_pay($trade_info_update);
+        if ($trade_update['status'] == false) {
+            return array(
+                'status' => false,
+                'msg' => $trade_update['msg'],
+            );
+        }
+
+        $goods_info_update = [
+            'sales' => $goods_info['sales'] + 1,
+            'goods_stock' => $goods_stock_new,
+            'gid' => $gid,
+        ];
+        $goods_update = $this->GoodsCenterModel->update_goods_info_pay($goods_info_update);
+        if ($goods_update['status'] == false) {
+            return array(
+                'status' => false,
+                'msg' => $goods_update['msg'],
+            );
+        }
+        return array(
+            'status' => false,
+            'msg' => '回调成功！',
+        );
     }
 }

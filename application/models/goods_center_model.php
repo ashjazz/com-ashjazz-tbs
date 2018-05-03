@@ -75,4 +75,26 @@ class Goods_center_model extends MY_Model
             );
         }
     }
+
+    /*
+     * 支付回调修改商品信息
+     */
+    public function update_goods_info_pay($goods_info)
+    {
+        $where_goods = [
+            'gid' => $goods_info['gid'],
+        ];
+        $sql_goods = sql_string($goods_info, 'update', 'goods_info', $where_goods);
+        $query_goods = $this->db->query($sql_goods);
+        if ($query_goods == true) {
+            return array(
+                'status' => true,
+            );
+        } else {
+            return array(
+                'status' => false,
+                'msg' => '商品更新失败',
+            );
+        }
+    }
 }

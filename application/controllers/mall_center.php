@@ -17,8 +17,6 @@ class Mall_center extends MY_Controller
             ['gid', 'string', 'null' => false],
             ['seller_uid', 'int', 'null' => false],
             ['buyer_uid', 'int', 'null' => false],
-            ['pay_price', 'int', 'null' => false], //支付金额
-            ['pay_channel', 'int', 'null' => false], //支付渠道
             ['buyer_nickname', 'string', 'null' => false],
             ['is_stock', 'int', 'default' => 1], //是否备货 默认已备货
             ['access_token', 'string', 'null' => false],
@@ -37,5 +35,26 @@ class Mall_center extends MY_Controller
         } else {
             return $this->success($ret['msg']);
         }
+    }
+
+    /*
+     * 支付回调
+     */
+    public function pay_call_back()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['trade_no', 'string','null' => false],
+            ['pay_channel','int','null' => false],
+            ['payment_vouchers','string','null' => false], //支付凭证
+            ['pay_price','int','null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->MallCenterLogic->pay_call_back_logic($post_data);
+        return $this->success($ret['msg']);
     }
 }

@@ -80,7 +80,7 @@ class User_center_model extends MY_Model
         $uid = $account_info['uid'];
         if ($password_get == $password_query) {
             $access_token = date("YmdHis") . substr(microtime(), 2, 3) . rand(10, 99);
-            $sql = sql_string(['access_token' => $access_token], 'update', 'user_account_info_main', 
+            $sql = sql_string(['access_token' => $access_token], 'update', 'user_account_info_main',
                 ['mobile_phone' => $data['mobile_phone']]);
             $this->db->query($sql, array($access_token));
             return array(
@@ -115,6 +115,42 @@ class User_center_model extends MY_Model
             return array(
                 'status' => false,
                 'msg' => '修改失败，请重试',
+            );
+        }
+    }
+
+    /*
+     *添加收货信息
+     */
+    public function add_receipt_info_model($data)
+    {
+        $account_info = $this->UserLoginInLogic->verify_login_in($data);
+        if ($account_info['status'] == false) {
+            return array(
+                'status' => false,
+                'msg' => $account_info['msg'],
+            );
+        } else {
+            $account_info = $account_info['data'];
+        }
+
+        $receipt_info = [
+            'receipt_address' => $data['receipt_address'],
+            'receipt_phone' => $data['receipt_phone'],
+            'receipt_name' => $data['receipt_name'],
+            'uid' => $data['uid'],
+        ];
+        $sql = sql_string($receipt_info, 'insert', 'receipt_info');
+        $query = $this->db->query($sql);
+        if ($query == true) {
+            return array(
+                'status' => true,
+                'msg' => '操作成功',
+            );
+        } else {
+            return array(
+                'status' => false,
+                'msg' => '操作失败',
             );
         }
     }

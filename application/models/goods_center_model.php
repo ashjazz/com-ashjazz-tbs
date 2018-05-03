@@ -97,4 +97,5 @@ class Goods_center_model extends MY_Model
             );
         }
     }
+
 }

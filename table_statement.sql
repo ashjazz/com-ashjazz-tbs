@@ -145,6 +145,17 @@ CREATE TABLE `goods_info` (
   KEY `update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品信息表';
 
+CREATE TABLE `receipt_info` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) DEFAULT NULL,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `receipt_address` text COMMENT '收货地址',
+  `receipt_phone` varchar(15) DEFAULT NULL COMMENT '收货电话',
+  `receipt_name` varchar(20) DEFAULT NULL COMMENT '收货人姓名',
+  PRIMARY KEY (`id`),
+  KEY `uid` (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='收货信息表';
 
 
 

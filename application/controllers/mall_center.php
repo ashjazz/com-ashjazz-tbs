@@ -20,7 +20,7 @@ class Mall_center extends MY_Controller
             ['buyer_nickname', 'string', 'null' => false],
             ['is_stock', 'int', 'default' => 1], //是否备货 默认已备货
             ['access_token', 'string', 'null' => false],
-            ['mobile_phone', 'string', 'null' => false], //收件人手机号
+            ['receipt_info_id', 'int', 'null' => false], //收货信息id
         ];
         $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
         if ($verify->getVerifyStatus() === false) {
@@ -44,10 +44,10 @@ class Mall_center extends MY_Controller
     {
         $post_data = $this->getPostData();
         $rules = [
-            ['trade_no', 'string','null' => false],
-            ['pay_channel','int','null' => false],
-            ['payment_vouchers','string','null' => false], //支付凭证
-            ['pay_price','int','null' => false],
+            ['trade_no', 'string', 'null' => false],
+            ['pay_channel', 'int', 'null' => false],
+            ['payment_vouchers', 'string', 'null' => false], //支付凭证
+            ['pay_price', 'int', 'null' => false],
         ];
         $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
         if ($verify->getVerifyStatus() === false) {
@@ -55,6 +55,24 @@ class Mall_center extends MY_Controller
         }
 
         $ret = $this->MallCenterLogic->pay_call_back_logic($post_data);
+        return $this->success($ret['msg']);
+    }
+
+    /*
+     * 订单发货
+     */
+    public function trade_deliver_goods()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['trade_no', 'string', 'null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->MallCenterLogic->trade_deliver_goods_logic($post_data);
         return $this->success($ret['msg']);
     }
 }

@@ -82,13 +82,13 @@ class Mall_center_logic extends MY_Logic
             'product_name' => $goods_info['product_name'],
             'product_cover_image' => $goods_info['product_cover_image'],
             'trade_status' => 2,
-            'mobile_phone' => $data['mobile_phone'],
             'seller_nickname' => $account_info_seller['nickname'],
             'buyer_nickname' => $account_info_buyer['nickname'],
             'goods_imgs' => $goods_info['goods_imgs'],
             'is_stock' => $data['is_stock'],
             'buyer_mobilephone' => $account_info_buyer['mobile_phone'],
             'trade_price' => $goods_info['goods_price'],
+            'receipt_info_id' => $data['receipt_info_id'],
         ];
 
         $ret = $this->MallCenterModel->create_order_model($order_info);
@@ -152,6 +152,69 @@ class Mall_center_logic extends MY_Logic
             );
         }
 
+        // 商品信息库存修改
+        // $goods_info_update = [
+        //     'sales' => $goods_info['sales'] + 1,
+        //     'goods_stock' => $goods_stock_new,
+        //     'gid' => $gid,
+        // ];
+        // $goods_update = $this->GoodsCenterModel->update_goods_info_pay($goods_info_update);
+        // if ($goods_update['status'] == false) {
+        //     return array(
+        //         'status' => false,
+        //         'msg' => $goods_update['msg'],
+        //     );
+        // }
+        return array(
+            'status' => false,
+            'msg' => '回调成功！',
+        );
+    }
+
+    /*
+     * 订单发货
+     */
+    public function trade_deliver_goods_logic($data)
+    {
+        $trade_info = $this->MallCenterModel->get_trade_order_info($data['trade_no']);
+        if ($trade_info['status'] == false) {
+            return $trade_info;
+        }
+        $trade_info = $trade_info['data'];
+
+        $goods_info = $this->GoodsCenterModel->get_goods_info_by_gid($trade_info['gid']);
+        if ($goods_info['status'] == false) {
+            return $goods_info;
+        }
+        $goods_info = $goods_info['data'];
+        if ($trade_info['trade_status'] != 3) {
+            return array(
+                'status' => false,
+                'msg' => '订单不是待发货状态',
+            );
+        }
+        if ($goods_info['goods_stock'] <= 0) {
+            return array(
+                'status' => false,
+                'msg' => '商品库存不足',
+            );
+        }
+
+        $gid = $trade_info['gid'];
+        $goods_stock_new = $goods_info['goods_stock'] - 1;
+        $trade_info_update = [
+            'trade_no' => $data['trade_no'],
+            'trade_status' => 4,
+        ];
+        $trade_update = $this->MallCenterModel->updata_trade_for_pay($trade_info_update);
+        if ($trade_update['status'] == false) {
+            return array(
+                'status' => false,
+                'msg' => $trade_update['msg'],
+            );
+        }
+
+        // 商品信息库存修改
         $goods_info_update = [
             'sales' => $goods_info['sales'] + 1,
             'goods_stock' => $goods_stock_new,
@@ -165,8 +228,8 @@ class Mall_center_logic extends MY_Logic
             );
         }
         return array(
-            'status' => false,
-            'msg' => '回调成功！',
+            'status' => true,
+            '发货成功!',
         );
     }
 }

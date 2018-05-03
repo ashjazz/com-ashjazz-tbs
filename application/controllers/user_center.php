@@ -114,4 +114,26 @@ class User_center extends MY_Controller
             return $this->success($ret['msg']);
         }
     }
+
+    /*
+     *添加收货信息
+     */
+    public function add_receipt_info()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['uid', 'int', 'null' => false],
+            ['receipt_address', 'string', 'null' => false],
+            ['receipt_phone', 'string', 'null' => false],
+            ['receipt_name', 'string', 'null' => false],
+            ['access_token', 'string', 'null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->UserCenterModel->add_receipt_info_model($post_data);
+        return $this->success($ret['msg']);
+    }
 }

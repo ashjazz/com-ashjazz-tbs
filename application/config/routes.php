@@ -56,6 +56,7 @@ $route['goods_list'] = "goods_center/goods_list"; //商品列表
 
 /*商城相关*/
 $route['create_order'] = "mall_center/create_order"; //创建订单
+$route['pay_call_back'] = "mall_center/pay_call_back"; //支付回调
 
 
 $route['404_override'] = '';

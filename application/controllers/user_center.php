@@ -6,6 +6,8 @@ class User_center extends MY_Controller
         parent::__construct();
         $this->load->model('user_center_model', 'UserCenterModel');
         $this->load->logic('user_center_logic', 'UserCenterLogic');
+        $this->load->model('mall_center_model', 'MallCenterModel');
+        $this->load->logic('mall_center_logic', 'MallCenterLogic');
     }
 
     /*
@@ -135,5 +137,31 @@ class User_center extends MY_Controller
 
         $ret = $this->UserCenterModel->add_receipt_info_model($post_data);
         return $this->success($ret['msg']);
+    }
+
+    /*
+     *用户订单列表
+     */
+    public function get_trade_list()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['uid', 'int', 'null' => false],
+            ['start', 'int', 'default' => 0],
+            ['count', 'int', 'default' => 10],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $result_data = [];
+        $ret = $this->MallCenterModel->get_trade_list_model($post_data);
+        if ($ret['status'] == true) {
+            $result_data['trade_list'] = $ret['data'];
+        } else {
+            return $this->success($ret['msg']);
+        }
+        return $this->success($result_data);
     }
 }

@@ -50,6 +50,7 @@ $route['sign_in'] = "user_center/sign_in"; //用户登录
 $route['set_user_account_info_more'] = 'user_center/set_user_account_info_more'; //用户信息完善
 $route['reset_user_password'] = 'user_center/reset_user_password'; //更改密码
 $route['add_receipt_info'] = "user_center/add_receipt_info"; //添加收货信息
+$route['get_trade_list'] = "user_center/get_trade_list"; //获取用户订单列表
 
 /*商品相关*/
 $route['push_goods'] = "goods_center/push_goods"; //发布商品
@@ -59,6 +60,8 @@ $route['goods_list'] = "goods_center/goods_list"; //商品列表
 $route['create_order'] = "mall_center/create_order"; //创建订单
 $route['pay_call_back'] = "mall_center/pay_call_back"; //支付回调
 $route['trade_deliver_goods'] = "mall_center/trade_deliver_goods"; //订单发货
+$route['sign_trade'] = "mall_center/sign_trade"; //签收订单
+$route['cancel_trade'] = "mall_center/cancel_trade"; //用户取消订单（未付款）
 
 
 $route['404_override'] = '';

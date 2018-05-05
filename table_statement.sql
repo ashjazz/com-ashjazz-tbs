@@ -1,89 +1,43 @@
-CREATE TABLE `trade_base` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `trade_no` char(20) DEFAULT NULL,
-  `gid` char(14) DEFAULT NULL,
-  `seller_uid` int(10) DEFAULT NULL,
-  `buyer_uid` int(10) DEFAULT NULL,
-  `goods_price` int(11) DEFAULT NULL COMMENT '商品价格',
-  `pay_price` int(10) DEFAULT NULL COMMENT '订单总价',
-  `pay_channel` tinyint(1) DEFAULT '0' COMMENT ' 1,支付宝支付。2，银联支付。5，银联全渠道。6，微信支付。7，微信web支付。8，微信小程序JSAPI支付。9，新版阿里app支付。（版本号设计为向前兼容）',
-  `product_bid` int(11) DEFAULT NULL,
-  `product_brandname_e` varchar(100) DEFAULT NULL,
-  `product_name` varchar(512) DEFAULT NULL,
-  `product_cover_image` varchar(256) DEFAULT NULL,
-  `trade_status` tinyint(2) DEFAULT '1' COMMENT '订单状态 1:待接单 2:待付款 3:待发货 4:待签收 5:交易成功 6:商家拒绝接单 7:商家发货失败 8:退款成功 9:买家已取消订单 10:订单已关闭',
-  `mobilephone` varchar(15) DEFAULT NULL,
-  `pay_time` timestamp NULL DEFAULT NULL,
+CREATE TABLE `goods_info` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `gid` char(14) NOT NULL COMMENT '商品id',
+  `sales` int(10) DEFAULT '0' COMMENT '商品销量',
+  `seller_uid` int(10) DEFAULT NULL COMMENT '商家uid',
+  `price` int(10) DEFAULT NULL COMMENT 'price=original_price+shipping_rate+customs_duties',
+  `product_brandname_e` varchar(100) DEFAULT NULL COMMENT '品牌名称',
+  `product_name` varchar(512) DEFAULT NULL COMMENT '商品名称',
+  `product_cover_image` varchar(256) DEFAULT NULL COMMENT '商品首图',
+  `goods_description` mediumtext COMMENT '货品描述',
+  `show_status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '1：上架，0：下架，-1：预发布，-2：删除，-3：审核未通过',
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `seller_nickname` varchar(50) DEFAULT NULL,
-  `buyer_nickname` varchar(50) DEFAULT NULL,
-  `goods_imgs` mediumtext COMMENT '商品图片',
-  `is_stock` tinyint(2) NOT NULL DEFAULT '2' COMMENT '是否备货：1，已备货；2，未备货（默认）',
-  `first_level_type_id` int(10) DEFAULT '0' COMMENT '商品一级类目id',
-  `first_level_type` varchar(20) DEFAULT '' COMMENT '类目名称',
-  `buyer_mobilephone` varchar(20) DEFAULT NULL COMMENT '买家手机号，区别于收件人手机号mobilephone',
-  `trade_price` int(10) DEFAULT NULL COMMENT '订单总价',
-  `cancel_code` int(10) DEFAULT '0' COMMENT '订单取消原因:1,我不想买了;2,信息填写错误，重新下单;3,买手缺货;4,已与买手协商，取消订单;5,超过支付金额;6,其他原因',
-  `delivery_failed_time` timestamp NULL DEFAULT NULL COMMENT '发货失败时间',
-  `refunded_time` timestamp NULL DEFAULT NULL COMMENT '退款时间',
-  `cancelled_time` timestamp NULL DEFAULT NULL COMMENT '订单取消时间',
-  `record_status` tinyint(1) DEFAULT '1' COMMENT '订单软删除标志',
-  `refund_fee` int(11) DEFAULT '0' COMMENT '订单已退金额总和',
+  `product_desc` mediumtext COMMENT '商品描述',
+  `goods_stock` int(4) unsigned DEFAULT '0' COMMENT '库存',
+  `seller_nickname` varchar(32) DEFAULT '' COMMENT '商家昵称',
+  `goods_imgs` mediumtext COMMENT '商家自定义商品图片.JSON',
+  `goods_price` int(11) DEFAULT '0' COMMENT '商品原价',
+  `favorite_user_count` int(11) unsigned DEFAULT '0' COMMENT '收藏用户数',
+  `refused_reason` varchar(512) DEFAULT NULL COMMENT '审核未通过原因或cms管理员下架商品、删除商品的原因。',
+  `audit_uid` int(11) DEFAULT NULL COMMENT '最后一次审核人uid',
+  `audit_time` timestamp NULL DEFAULT NULL COMMENT '最后一次审核时间',
+  `goods_return_support` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '是否支持七天无理由退货，1:是，0:否',
+  `undercarriage_time` timestamp NULL DEFAULT NULL COMMENT '下架时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `trade_no` (`trade_no`),
-  KEY `gid` (`gid`),
-  KEY `buyer_uid` (`buyer_uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单详情表';
+  KEY `audit_uid` (`audit_uid`),
+  KEY `update_time` (`update_time`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='商品信息表';
 
-
-
-CREATE TABLE `user_account_info_main` (
-  `uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `nickname` varchar(50) NOT NULL COMMENT '用户昵称',
-  `avatarimage` varchar(200) NOT NULL DEFAULT '' COMMENT '用户头像地址',
-  `location` varchar(20) NOT NULL DEFAULT '' COMMENT '用户所在地',
-  `gender` varchar(4) NOT NULL DEFAULT '' COMMENT '性别',
-  `access_token` varchar(40) DEFAULT NULL COMMENT '身份验证token',
-  `createtime` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `username` varchar(64) DEFAULT NULL,
-  `password` char(32) DEFAULT NULL,
-  `mobile_phone` varchar(15) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `title` tinyint(2) DEFAULT '0' COMMENT '用来标识用户身份：0,普通用户;1,注册买手;2,认证买手;3,达人;4,买手店;5,设计师',
-  `show_status` tinyint(1) DEFAULT '1' COMMENT '用户是否有效：1：有效，0：无效',
-  `last_login_time` timestamp NULL DEFAULT NULL COMMENT '用户最近一次登录的时间',
-  `is_vip` tinyint(1) DEFAULT '0' COMMENT '是否是vip',
-  PRIMARY KEY (`uid`),
-  UNIQUE KEY `mobile_phone` (`mobile_phone`),
-  KEY `nickname` (`nickname`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户信息中心表';
-
-
-CREATE TABLE `work_order` (
-  `work_order_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '工单id',
-  `title` varchar(500) DEFAULT NULL COMMENT '标题',
-  `first_level_type_id` int(11) DEFAULT NULL COMMENT '一级类型id',
-  `first_level_type` varchar(50) DEFAULT NULL COMMENT '一级类型',
-  `second_level_type_id` int(11) DEFAULT NULL COMMENT '二级类型id',
-  `second_level_type` varchar(50) DEFAULT NULL COMMENT '二级类型',
-  `status` tinyint(2) DEFAULT NULL COMMENT '状态（1：未受理； 2：受理中；3：已关闭；4：已解决）',
-  `organizer_uid` int(10) DEFAULT NULL COMMENT '发起人uid',
-  `organizer_name` varchar(50) DEFAULT NULL COMMENT '发起人',
-  `assigns_uid` int(10) DEFAULT NULL COMMENT '受理人uid',
-  `assigns_name` varchar(50) DEFAULT NULL COMMENT '受理人',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `trade_no` varchar(45) DEFAULT NULL COMMENT '订单号',
-  `buyer_uid` int(10) DEFAULT NULL COMMENT '买家uid',
-  `buyer_name` varchar(50) DEFAULT NULL COMMENT '买家昵称',
-  `seller_uid` int(10) DEFAULT NULL COMMENT '商家uid',
-  `seller_name` varchar(50) DEFAULT NULL COMMENT '商家昵称',
-  `description` text COMMENT '描述',
-  PRIMARY KEY (`work_order_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='工单表';
-
+CREATE TABLE `receipt_info` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) DEFAULT NULL,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `receipt_address` text COMMENT '收货地址',
+  `receipt_phone` varchar(15) DEFAULT NULL COMMENT '收货电话',
+  `receipt_name` varchar(20) DEFAULT NULL COMMENT '收货人姓名',
+  PRIMARY KEY (`id`),
+  KEY `uid` (`uid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='收货信息表';
 
 CREATE TABLE `refund_work_order` (
   `work_order_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '退款工单号',
@@ -110,63 +64,87 @@ CREATE TABLE `refund_work_order` (
   KEY `trade_no` (`trade_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='退款工单表';
 
-
-
-CREATE TABLE `goods_info` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `gid` char(14) NOT NULL,
-  `sales` int(10) DEFAULT '0' COMMENT '商品销量',
+CREATE TABLE `trade_base` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `trade_no` char(20) DEFAULT NULL,
+  `gid` char(14) DEFAULT NULL,
   `seller_uid` int(10) DEFAULT NULL,
-  `price` int(10) DEFAULT NULL COMMENT 'price=original_price+shipping_rate+customs_duties',
-  `product_bid` int(11) DEFAULT NULL,
+  `buyer_uid` int(10) DEFAULT NULL,
+  `goods_price` int(11) DEFAULT NULL COMMENT '商品价格',
+  `pay_price` int(10) DEFAULT NULL COMMENT '订单总价',
+  `pay_channel` tinyint(1) DEFAULT '0' COMMENT ' 1,支付宝支付。2，银联支付。5，银联全渠道。6，微信支付。7，微信web支付。8，微信小程序JSAPI支付。9，新版阿里app支付。（版本号设计为向前兼容）',
   `product_brandname_e` varchar(100) DEFAULT NULL,
   `product_name` varchar(512) DEFAULT NULL,
   `product_cover_image` varchar(256) DEFAULT NULL,
-  `goods_description` mediumtext,
-  `sell_country` varchar(80) DEFAULT NULL,
-  `show_status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '1：上架，0：下架，-1：预发布，-2：删除，-3：审核未通过',
+  `trade_status` tinyint(2) DEFAULT '1' COMMENT '订单状态 1:待接单 2:待付款 3:待发货 4:待签收 5:交易成功 6:商家拒绝接单 7:商家发货失败 8:退款成功 9:买家已取消订单 10:订单已关闭',
+  `mobile_phone` varchar(15) DEFAULT NULL,
+  `pay_time` timestamp NULL DEFAULT NULL,
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `product_desc` mediumtext,
-  `goods_stock` int(4) unsigned DEFAULT '0' COMMENT '库存',
-  `seller_nickname` varchar(32) DEFAULT '' COMMENT '商家昵称',
-  `goods_imgs` mediumtext COMMENT '商家自定义商品图片.JSON',
-  `goods_price` int(11) DEFAULT '0' COMMENT '商品原价',
-  `favorite_user_count` int(11) unsigned DEFAULT '0' COMMENT '收藏用户数',
-  `refused_reason` varchar(512) DEFAULT NULL COMMENT '审核未通过原因或cms管理员下架商品、删除商品的原因。',
-  `audit_uid` int(11) DEFAULT NULL COMMENT '最后一次审核人uid',
-  `audit_time` timestamp NULL DEFAULT NULL COMMENT '最后一次审核时间',
-  `goods_return_support` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '是否支持七天无理由退货，1:是，0:否',
-  `undercarriage_time` timestamp NULL DEFAULT NULL COMMENT '下架时间',
-  `is_ad` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为广告商品',
+  `seller_nickname` varchar(50) DEFAULT NULL,
+  `buyer_nickname` varchar(50) DEFAULT NULL,
+  `goods_imgs` mediumtext COMMENT '商品图片',
+  `is_stock` tinyint(2) NOT NULL DEFAULT '2' COMMENT '是否备货：1，已备货（默认）；2，未备货',
+  `first_level_type_id` int(10) DEFAULT '0' COMMENT '商品一级类目id',
+  `first_level_type` varchar(20) DEFAULT '' COMMENT '类目名称',
+  `buyer_mobilephone` varchar(20) DEFAULT NULL COMMENT '买家手机号，区别于收件人手机号mobilephone',
+  `trade_price` int(10) DEFAULT NULL COMMENT '订单总价',
+  `cancel_code` int(10) DEFAULT '0' COMMENT '订单取消原因:1,我不想买了;2,信息填写错误，重新下单;3,买手缺货;4,已与买手协商，取消订单;5,超过支付金额;6,其他原因',
+  `delivery_failed_time` timestamp NULL DEFAULT NULL COMMENT '发货失败时间',
+  `refunded_time` timestamp NULL DEFAULT NULL COMMENT '退款时间',
+  `cancelled_time` timestamp NULL DEFAULT NULL COMMENT '订单取消时间',
+  `record_status` tinyint(1) DEFAULT '1' COMMENT '订单软删除标志',
+  `refund_fee` int(11) DEFAULT '0' COMMENT '订单已退金额总和',
+  `payment_vouchers` varchar(20) DEFAULT NULL COMMENT '支付凭证',
+  `receipt_info_id` int(10) DEFAULT NULL COMMENT '收货信息id',
   PRIMARY KEY (`id`),
-  KEY `product_bid` (`product_bid`),
-  KEY `audit_uid` (`audit_uid`),
-  KEY `update_time` (`update_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品信息表';
+  UNIQUE KEY `trade_no` (`trade_no`),
+  KEY `gid` (`gid`),
+  KEY `buyer_uid` (`buyer_uid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='订单详情表';
 
-CREATE TABLE `receipt_info` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `uid` int(10) DEFAULT NULL,
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `receipt_address` text COMMENT '收货地址',
-  `receipt_phone` varchar(15) DEFAULT NULL COMMENT '收货电话',
-  `receipt_name` varchar(20) DEFAULT NULL COMMENT '收货人姓名',
-  PRIMARY KEY (`id`),
-  KEY `uid` (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='收货信息表';
+CREATE TABLE `user_account_info_main` (
+  `uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `nickname` varchar(50) NOT NULL COMMENT '用户昵称',
+  `avatarimage` varchar(200) DEFAULT '' COMMENT '用户头像地址',
+  `location` varchar(20) DEFAULT '' COMMENT '用户所在地',
+  `gender` tinyint(4) DEFAULT NULL COMMENT '性别 1：男 2：女',
+  `access_token` varchar(40) DEFAULT NULL COMMENT '身份验证token',
+  `createtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `username` varchar(64) DEFAULT NULL,
+  `password` char(32) DEFAULT NULL,
+  `mobile_phone` varchar(15) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `title` tinyint(2) DEFAULT '0' COMMENT '用来标识用户身份：0,普通用户;1,注册买手;2,认证买手;3,达人;4,买手店;5,设计师',
+  `show_status` tinyint(1) DEFAULT '1' COMMENT '用户是否有效：1：有效，0：无效',
+  `last_login_time` timestamp NULL DEFAULT NULL COMMENT '用户最近一次登录的时间',
+  `is_vip` tinyint(1) DEFAULT '0' COMMENT '是否是vip',
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `mobile_phone` (`mobile_phone`),
+  KEY `nickname` (`nickname`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='用户信息中心表';
 
-
-
-
-
-
-
-
-
-
-
-
-
+CREATE TABLE `work_order` (
+  `work_order_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '工单id',
+  `title` varchar(500) DEFAULT NULL COMMENT '标题',
+  `first_level_type_id` int(11) DEFAULT NULL COMMENT '一级类型id',
+  `first_level_type` varchar(50) DEFAULT NULL COMMENT '一级类型',
+  `second_level_type_id` int(11) DEFAULT NULL COMMENT '二级类型id',
+  `second_level_type` varchar(50) DEFAULT NULL COMMENT '二级类型',
+  `status` tinyint(2) DEFAULT NULL COMMENT '状态（1：未受理； 2：受理中；3：已关闭；4：已解决）',
+  `organizer_uid` int(10) DEFAULT NULL COMMENT '发起人uid',
+  `organizer_name` varchar(50) DEFAULT NULL COMMENT '发起人',
+  `assigns_uid` int(10) DEFAULT NULL COMMENT '受理人uid',
+  `assigns_name` varchar(50) DEFAULT NULL COMMENT '受理人',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `trade_no` varchar(45) DEFAULT NULL COMMENT '订单号',
+  `buyer_uid` int(10) DEFAULT NULL COMMENT '买家uid',
+  `buyer_name` varchar(50) DEFAULT NULL COMMENT '买家昵称',
+  `seller_uid` int(10) DEFAULT NULL COMMENT '商家uid',
+  `seller_name` varchar(50) DEFAULT NULL COMMENT '商家昵称',
+  `description` text COMMENT '描述',
+  PRIMARY KEY (`work_order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='工单表';
 

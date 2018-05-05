@@ -232,4 +232,56 @@ class Mall_center_logic extends MY_Logic
             '发货成功!',
         );
     }
+
+    /*
+     *用户签收订单
+     */
+    public function sign_trade_logic($data)
+    {
+        $account_info = $this->UserLoginInLogic->verify_login_in($data);
+        if ($account_info['status'] == false) {
+            return $account_info;
+        }
+        $account_info = $account_info['data'];
+        $trade_info = $this->MallCenterModel->get_trade_order_info($data['trade_no']);
+        if ($trade_info['status'] == false) {
+            return $trade_info;
+        }
+        $trade_info = $trade_info['data'];
+
+        if ($trade_info['trade_status'] != 4) {
+            return array(
+                'status' => false,
+                'msg' => '订单不是待签收状态',
+            );
+        }
+        $trade_info_update = [
+            'trade_no' => $data['trade_no'],
+            'trade_status' => 5,
+        ];
+        $trade_update = $this->MallCenterModel->updata_trade_for_pay($trade_info_update);
+        if ($trade_update['status'] == false) {
+            return array(
+                'status' => false,
+                'msg' => $trade_update['msg'],
+            );
+        }
+        return array(
+            'status' => true,
+            'msg' => '签收成功!',
+        );
+    }
+
+    /*
+     *用户取消订单
+     */
+    public function cancel_trade_logic($data)
+    {
+        $account_info = $this->UserLoginInLogic->verify_login_in($data);
+        if ($account_info['status'] == false) {
+            return $account_info;
+        }
+        $account_info = $account_info['data'];
+        echo "<pre>"; print_r($account_info); echo "</pre>"; die;
+    }
 }

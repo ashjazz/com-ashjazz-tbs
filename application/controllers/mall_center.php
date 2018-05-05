@@ -75,4 +75,43 @@ class Mall_center extends MY_Controller
         $ret = $this->MallCenterLogic->trade_deliver_goods_logic($post_data);
         return $this->success($ret['msg']);
     }
+
+    /*
+     *用户签收订单
+     */
+    public function sign_trade()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['trade_no', 'string', 'null' => false],
+            ['access_token', 'string', 'null' => false],
+            ['uid', 'int', 'null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->MallCenterLogic->sign_trade_logic($post_data);
+        return $this->success($ret['msg']);
+    }
+
+    /*
+     *用户取消订单(未支付)
+     */
+    public function cancel_trade()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['trade_no', 'string', 'null' => false],
+            ['uid', 'int', 'null' => false],
+            ['access_token', 'string', 'null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->MallCenterLogic->cancel_trade_logic($post_data);
+    }
 }

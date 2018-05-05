@@ -68,4 +68,23 @@ class Mall_center_model extends MY_Model
             );
         }
     }
+
+    /*
+     * 获取用户订单列表
+     */
+    public function get_trade_list_model($data)
+    {
+        $sql = "SELECT * FROM trade_base WHERE buyer_uid = ? LIMIT ? OFFSET ?";
+        $query = $this->db->query($sql, array($data['uid'], $data['count'], $data['start']));
+        $trade_list = $query->result_array();
+        if (empty($trade_list)) {
+            return array(
+                'status' => false,
+            );
+        }
+        return array(
+            'status' => true,
+            'data' => $trade_list,
+        );
+    }
 }

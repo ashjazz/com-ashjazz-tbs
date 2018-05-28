@@ -62,6 +62,7 @@ $route['pay_call_back'] = "mall_center/pay_call_back"; //支付回调
 $route['trade_deliver_goods'] = "mall_center/trade_deliver_goods"; //订单发货
 $route['sign_trade'] = "mall_center/sign_trade"; //签收订单
 $route['cancel_trade'] = "mall_center/cancel_trade"; //用户取消订单（未付款）
+$route['create_refund'] = "mall_center/create_refund_work_order"; //用户发起退款
 
 
 $route['404_override'] = '';

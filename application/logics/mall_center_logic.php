@@ -15,6 +15,8 @@ class Mall_center_logic extends MY_Logic
      */
     public function create_order_logic($data)
     {
+        $sql = "START TRANSACTION";
+        $query = $this->db->query($sql);
         $buyer_uid['uid'] = $data['buyer_uid'];
         $buyer_uid['access_token'] = $data['access_token'];
         $seller_uid['uid'] = $data['seller_uid'];
@@ -23,6 +25,8 @@ class Mall_center_logic extends MY_Logic
         // 买家登录校验并获取买家信息
         $account_info_buyer = $this->UserLoginInLogic->verify_login_in($buyer_uid);
         if ($account_info_buyer['status'] == false) {
+            $sql = "ROLLBACK";
+            $query = $this->db->query($sql);
             return array(
                 'status' => false,
                 'msg' => $account_info_buyer['msg'],
@@ -33,6 +37,8 @@ class Mall_center_logic extends MY_Logic
         // 获取商家账户信息
         $account_info_seller = $this->UserCenterModel->is_set_account($seller_uid);
         if ($account_info_seller['status'] == false) {
+            $sql = "ROLLBACK";
+            $query = $this->db->query($sql);
             return array(
                 'status' => false,
                 'msg' => $account_info_seller['msg'],
@@ -43,6 +49,8 @@ class Mall_center_logic extends MY_Logic
         // 获取商品信息
         $goods_info = $this->GoodsCenterModel->get_goods_info_by_gid($gid);
         if ($goods_info['status'] == false) {
+            $sql = "ROLLBACK";
+            $query = $this->db->query($sql);
             return array(
                 'status' => false,
                 'msg' => $goods_info['msg'],
@@ -51,6 +59,8 @@ class Mall_center_logic extends MY_Logic
         $goods_info = $goods_info['data'];
 
         if ($account_info_buyer['show_status'] == 0) {
+            $sql = "ROLLBACK";
+            $query = $this->db->query($sql);
             return array(
                 'status' => false,
                 'msg' => '用户信息无效',
@@ -58,6 +68,8 @@ class Mall_center_logic extends MY_Logic
         }
 
         if ($goods_info['show_status'] != 1) {
+            $sql = "ROLLBACK";
+            $query = $this->db->query($sql);
             return array(
                 'status' => false,
                 'msg' => '商品未上架',
@@ -65,6 +77,8 @@ class Mall_center_logic extends MY_Logic
         }
 
         if ($goods_info['goods_stock'] <= 0) {
+            $sql = "ROLLBACK";
+            $query = $this->db->query($sql);
             return array(
                 'status' => false,
                 'msg' => '商品库存不足',
@@ -92,6 +106,8 @@ class Mall_center_logic extends MY_Logic
         ];
 
         $ret = $this->MallCenterModel->create_order_model($order_info);
+        $sql = "COMMIT";
+        $query = $this->db->query($sql);
         return $ret;
     }
 
@@ -276,6 +292,51 @@ class Mall_center_logic extends MY_Logic
      *用户取消订单
      */
     public function cancel_trade_logic($data)
+    {
+        $account_info = $this->UserLoginInLogic->verify_login_in($data);
+        if ($account_info['status'] == false) {
+            return $account_info;
+        }
+        $account_info = $account_info['data'];
+
+        // 获取订单信息
+        $trade_info = $this->MallCenterModel->get_trade_order_info($data['trade_no']);
+        if ($trade_info['status'] == false) {
+            return $trade_info;
+        }
+        $trade_info = $trade_info['data'];
+        if (in_array($trade_info['trade_status'], [3, 4])) {
+            return array(
+                'status' => false,
+                'msg' => '该订单已付费，可退款',
+            );
+        }
+        if (in_array($trade_info['trade_status'], [5, 9])) {
+            return array(
+                'status' => false,
+                'msg' => '该订单已完结',
+            );
+        } 
+
+        $trade_info_update = [
+            'trade_no' => $data['trade_no'],
+            'trade_status' => 9,
+        ];
+        $trade_update = $this->MallCenterModel->updata_trade_for_pay($trade_info_update);
+        if ($trade_update['status'] == true) {
+            return array(
+                'status' => true,
+                'msg' => '操作成功!',
+            );
+        } else {
+            return $trade_update;
+        }
+    }
+
+    /*
+     *用户发起退款
+     */
+    public function create_refund_work_order_logic($data)
     {
         $account_info = $this->UserLoginInLogic->verify_login_in($data);
         if ($account_info['status'] == false) {

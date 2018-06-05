@@ -18,6 +18,7 @@ class Goods_center extends MY_Controller
             ['start', 'int', 'default' => 0],
             ['count', 'int', 'default' => 12],
             ['key_word', 'string'],
+            ['goods_type', 'int', 'default' => 1],
         ];
         $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
         if ($verify->getVerifyStatus() === false) {
@@ -53,6 +54,7 @@ class Goods_center extends MY_Controller
             ['goods_imgs', 'string'],
             ['goods_price', 'int', 'null' => false],
             ['goods_return_support', 'int', 'in' => [0, 1], 'default' => 1],
+            ['goods_type', 'int', 'null' => false], //商品类目 1:外套 2：上衣 3：裤装 4：鞋靴 5：配件
         ];
         $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
         if ($verify->getVerifyStatus() === false) {
@@ -69,4 +71,25 @@ class Goods_center extends MY_Controller
         }
     }
 
+    /*
+     * 获取商品详情
+     */
+    public function get_goods_info()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['gid', 'string', 'null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->GoodsCenterModel->get_goods_info_by_gid($post_data['gid']);
+        if ($ret['status'] == true) {
+            return $this->success(['goods_info' => $ret['data']]);
+        } else {
+            return $this->success($ret['msg']);
+        }
+    }
 }

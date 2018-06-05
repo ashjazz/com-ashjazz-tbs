@@ -21,7 +21,7 @@ class Goods_center_logic extends MY_Logic
                 'msg' => $verify_login['msg'],
             );
         }
-        if ($verify_login['account_info']['title'] == 0) {
+        if ($verify_login['data']['title'] == 0) {
             return array(
                 'status' => false,
                 'msg' => '该用户不是商家！',
@@ -38,6 +38,7 @@ class Goods_center_logic extends MY_Logic
         isset($data['goods_imgs']) && $goods_info['goods_imgs'] = $data['goods_imgs'];
         $goods_info['goods_price'] = $data['goods_price'];
         $goods_info['goods_return_support'] = $data['goods_return_support'];
+        $goods_info['goods_type'] = $data['goods_type'];
         $goods_info['show_status'] = 1;
         $goods_info['seller_nickname'] = $verify_login['account_info']['nickname'];
 

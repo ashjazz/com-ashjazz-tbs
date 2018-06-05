@@ -13,8 +13,9 @@ class Goods_center_model extends MY_Model
     {
         $start = $data['start'];
         $count = $data['count'];
+        $goods_type = $data['goods_type'];
 
-        $sql = "SELECT * FROM goods_info LIMIT $count OFFSET $start";
+        $sql = "SELECT * FROM goods_info WHERE goods_type = $goods_type LIMIT $count OFFSET $start";
         if (isset($data['key_word'])) {
             $key_word = $data['key_word'];
             $sql = "SELECT * FROM goods_info WHERE product_brandname_e like '%$key_word%' or product_name
@@ -41,7 +42,6 @@ class Goods_center_model extends MY_Model
     public function push_goods_model($data, $goods_info)
     {
         $sql = sql_string($goods_info, 'insert', 'goods_info');
-        // echo "<pre>"; print_r($sql); echo "</pre>";
         $query = $this->db->query($sql);
         if ($query == true) {
             return array(
@@ -97,5 +97,4 @@ class Goods_center_model extends MY_Model
             );
         }
     }
-
 }

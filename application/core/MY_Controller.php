@@ -12,8 +12,12 @@ class MY_Controller extends CI_Controller
 
     protected function getPostData()
     {
-        return isset($GLOBALS['HTTP_RAW_POST_DATA']) ?
-            json_decode(safe_urldecode(str_replace('data=', '', $GLOBALS['HTTP_RAW_POST_DATA'])), true) : [];
+        if (!isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
+            return [];
+        }
+        $data = json_decode(safe_urldecode(str_replace('data=', '', $GLOBALS['HTTP_RAW_POST_DATA'])), true);
+
+        return $data === null ? [] : $data;
     }
 
     protected function getGetData()

@@ -126,6 +126,9 @@ class Mall_center extends MY_Controller
             ['trade_no', 'string', 'null' => false],
             ['uid', 'int', 'null' => false],
             ['access_token', 'string', 'null' => false],
+            ['refund_reason_type', 'int', 'default' => 1], //退款原因 1:商家原因; 2:买家原因; 3:拼团失败
+            ['refund_reason', 'string'], //退款原因描述
+            ['refund_specific_reason', 'int', 'default' => 1], //具体退款原因
         ];
         $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
         if ($verify->getVerifyStatus() === false) {
@@ -133,5 +136,51 @@ class Mall_center extends MY_Controller
         }
 
         $ret = $this->MallCenterLogic->create_refund_work_order_logic($post_data);
+        return $this->success($ret['msg']);
+    }
+
+    /*
+     *获取退款工单详情
+     */
+    public function get_refund_info()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['work_order_id', 'int', 'null' => false],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $result_data = [];
+        $ret = $this->MallCenterModel->get_refund_info_model($post_data);
+        if ($ret['status'] == true) {
+            $result_data['refund_info'] = $ret['data'];
+        } else {
+            return $this->success($ret['msg']);
+        }
+        return $this->success($result_data);
+    }
+
+    /*
+     *商家操作退款
+     */
+    public function seller_active_refund()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['uid', 'int', 'null' => false],
+            ['work_order_id', 'int', 'null' => false],
+            ['access_token', 'string', 'null' => false],
+            ['active', 'int', 'null' => false, 'default' => 1], //退款操作类型 1：同意 2：确认 3：拒绝
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->MallCenterLogic->seller_active_refund_logic($post_data);
+        return $this->success($ret);
     }
 }

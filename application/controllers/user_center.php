@@ -54,6 +54,7 @@ class User_center extends MY_Controller
                 'login_status' => true,
                 'access_token' => $ret['access_token'],
                 'uid' => $ret['uid'],
+                'title' => $ret['title'],
             ];
         } else {
             $result_data = [
@@ -76,7 +77,7 @@ class User_center extends MY_Controller
             ['location', 'string'],
             ['gender', 'int'],
             ['email', 'string'],
-            ['username', 'string'],
+            ['mobile_phone', 'string'],
         ];
         $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
         if ($verify->getVerifyStatus() === false) {
@@ -149,6 +150,7 @@ class User_center extends MY_Controller
             ['uid', 'int', 'null' => false],
             ['start', 'int', 'default' => 0],
             ['count', 'int', 'default' => 10],
+            ['access_token', 'string', 'null' => false],
         ];
         $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
         if ($verify->getVerifyStatus() === false) {
@@ -163,5 +165,51 @@ class User_center extends MY_Controller
             return $this->success($ret['msg']);
         }
         return $this->success($result_data);
+    }
+
+    /*
+     *获取退款工单列表
+     */
+    public function get_refund_list()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['uid', 'int', 'null' => false],
+            ['access_token', 'null' => false],
+            ['start', 'int', 'default' => 0],
+            ['count', 'int', 'default' => 10],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->MallCenterModel->get_refund_list_model($post_data);
+        $result_data = [];
+        if ($ret['status'] == true) {
+            $result_data['refund_list'] = $ret['data'];
+        } else {
+            return $this->success($ret['msg']);
+        }
+        return $this->success($result_data);
+    }
+
+    /*
+     *获取地址信息
+     */
+    public function get_address_list()
+    {
+        $post_data = $this->getPostData();
+        $rules = [
+            ['uid', 'int', 'null' => false],
+            ['count', 'int', 'default' => 5],
+        ];
+        $verify = VerifyAndFilter::newVerify()->verifyObject($post_data, $rules);
+        if ($verify->getVerifyStatus() === false) {
+            return $this->failed('验证失败，失败原因：' . ($verify->getFirstFailedMsg()));
+        }
+
+        $ret = $this->UserCenterModel->get_address_list_model($post_data);
+        return $this->success(['address' => $ret]);
     }
 }

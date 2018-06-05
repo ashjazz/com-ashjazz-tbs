@@ -245,7 +245,7 @@ class Mall_center_logic extends MY_Logic
         }
         return array(
             'status' => true,
-            '发货成功!',
+            'msg' => '发货成功!',
         );
     }
 
@@ -311,12 +311,12 @@ class Mall_center_logic extends MY_Logic
                 'msg' => '该订单已付费，可退款',
             );
         }
-        if (in_array($trade_info['trade_status'], [5, 9])) {
+        if (in_array($trade_info['trade_status'], [5, 9, 10])) {
             return array(
                 'status' => false,
                 'msg' => '该订单已完结',
             );
-        } 
+        }
 
         $trade_info_update = [
             'trade_no' => $data['trade_no'],
@@ -338,11 +338,133 @@ class Mall_center_logic extends MY_Logic
      */
     public function create_refund_work_order_logic($data)
     {
+        // 验证用户身份信息
         $account_info = $this->UserLoginInLogic->verify_login_in($data);
         if ($account_info['status'] == false) {
             return $account_info;
         }
         $account_info = $account_info['data'];
-        echo "<pre>"; print_r($account_info); echo "</pre>"; die;
+
+        $trade_info = $this->MallCenterModel->get_trade_order_info($data['trade_no']);
+        if ($trade_info['status'] == false) {
+            return $trade_info;
+        }
+        $trade_info = $trade_info['data'];
+        if (!in_array($trade_info['trade_status'], [3, 4, 5, 10])) {
+            return array(
+                'status' => false,
+                'msg' => '该订单不允许退款',
+            );
+        }
+        $refund_recent = $this->MallCenterModel->get_refund_info_model($data);
+        if ($refund_recent['status'] == true) {
+            $refund_recent = $refund_recent['data'];
+            if ($refund_recent['status'] == 0) {
+                return [
+                    'status' => false,
+                    'msg' => '该订单已退款成功',
+                ];
+            } elseif ($refund_recent['status'] != -4) {
+                return [
+                    'status' => false,
+                    'msg' => '该订单有未完成的退款',
+                ];
+            }
+        }
+
+        $create_refund = [
+            'trade_no' => $data['trade_no'],
+            'pay_price' => $trade_info['pay_price'],
+            'buyer_uid' => $trade_info['buyer_uid'],
+            'buyer_nickname' => $trade_info['buyer_nickname'],
+            'seller_uid' => $trade_info['seller_uid'],
+            'seller_nickname' => $trade_info['seller_nickname'],
+            'product_name' => $trade_info['product_name'],
+            'refund_reason_type' => $data['refund_reason_type'],
+            'refund_fee' => $trade_info['pay_price'],
+            'status' => 1,
+            'operator_uid' => $data['uid'],
+            'refund_specific_reason' => $data['refund_specific_reason'],
+        ];
+        !empty($data['refund_reason']) && $create_refund['refund_reason'] = $data['refund_reason'];
+        if ($trade_info['status'] == 3) {
+            $create_refund['trade_goods_status'] = 1;
+        } elseif ($trade_info['status'] == 4) {
+            $create_refund['trade_goods_status'] = 4;
+        } else {
+            $create_refund['trade_goods_status'] = 2;
+        }
+
+        $result_create_refund = $this->MallCenterModel->create_refund_work_order_model($create_refund);
+        return $result_create_refund;
+    }
+
+    /*
+     *商家操作退款
+     */
+    public function seller_active_refund_logic($data)
+    {
+        // 验证用户身份信息
+        $account_info = $this->UserLoginInLogic->verify_login_in($data);
+        if ($account_info['status'] == false) {
+            return $account_info;
+        }
+        $account_info = $account_info['data'];
+
+        // 获取退款工单详情
+        $refund_info = $this->MallCenterModel->get_refund_info_model($data);
+        if ($refund_info['status'] == false) {
+            return $refund_info;
+        }
+        $refund_info = $refund_info['data'];
+
+        if ($data['active'] == 1) {
+            // 商家同意退款
+            if ($refund_info['status'] != 1) {
+                return [
+                    'status' => false,
+                    'msg' => '退款不是待审核状态',
+                ];
+            }
+            $refund_update = [
+                'work_order_id' => $data['work_order_id'],
+                'status' => 3,
+            ];
+        } elseif ($data['active'] == 2) {
+            // 商家确认退款
+            if ($refund_info['status'] != 3) {
+                return [
+                    'status' => false,
+                    'msg' => '商家未同意退款',
+                ];
+            }
+            $refund_update = [
+                'work_order_id' => $data['work_order_id'],
+                'status' => 0,
+            ];
+            $trade_update_info = [
+                'trade_no' => $refund_info['trade_no'],
+                'refunded_time' => date("Y-m-d H:m:s"),
+                'trade_status' => 10,
+            ];
+            $trade_update = $this->MallCenterModel->updata_trade_for_pay($trade_update_info);
+            if ($trade_update['status'] == false) {
+                return $trade_update;
+            }
+        } elseif ($data['active'] == 3) {
+            // 商家拒绝退款
+            if ($refund_info['status'] != 1) {
+                return [
+                    'status' => false,
+                    'msg' => '退款不是待审核状态',
+                ];
+            }
+            $refund_update = [
+                'work_order_id' => $data['work_order_id'],
+                'status' => -4,
+            ];
+        }
+        $active_refund = $this->MallCenterModel->seller_active_refund_model($refund_update);
+        return $active_refund;
     }
 }

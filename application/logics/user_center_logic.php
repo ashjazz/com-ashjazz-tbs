@@ -47,7 +47,7 @@ class User_center_logic extends MY_Logic
         isset($data['location']) && $account_info_new['location'] = $data['location'];
         isset($data['gender']) && $account_info_new['gender'] = $data['gender'];
         isset($data['email']) && $account_info_new['email'] = $data['email'];
-        isset($data['username']) && $account_info_new['username'] = $data['username'];
+        isset($data['mobile_phone']) && $account_info_new['mobile_phone'] = $data['mobile_phone'];
 
         $ret = $this->UserCenterModel->update_user_account_info($data, $account_info_new);
         return $ret;
@@ -66,7 +66,7 @@ class User_center_logic extends MY_Logic
             );
         }
         $password_old_post = $data['password_old'];
-        $password_old_real = $verify_login['account_info']['password'];
+        $password_old_real = $verify_login['data']['password'];
         if ($password_old_post != $password_old_real) {
             return array(
                 'status' => false,

@@ -78,6 +78,7 @@ class User_center_model extends MY_Model
         $account_info = $account_info['data'];
         $password_query = $account_info['password'];
         $uid = $account_info['uid'];
+        $title = $account_info['title'];
         if ($password_get == $password_query) {
             $access_token = date("YmdHis") . substr(microtime(), 2, 3) . rand(10, 99);
             $sql = sql_string(['access_token' => $access_token], 'update', 'user_account_info_main',
@@ -87,6 +88,7 @@ class User_center_model extends MY_Model
                 'status' => true,
                 'access_token' => $access_token,
                 'uid' => $uid,
+                'title' => $title,
             );
         } else {
             return array(
@@ -153,5 +155,18 @@ class User_center_model extends MY_Model
                 'msg' => '操作失败',
             );
         }
+    }
+
+    /*
+     *获取收货信息
+     */
+    public function get_address_list_model($data)
+    {
+        $uid = $data['uid'];
+        $sql = "SELECT * FROM receipt_info WHERE uid = $uid LIMIT 5";
+        $query = $this->db->query($sql);
+        $address_list = $query->result_array();
+        // echo "<pre>"; print_r($address_list); echo "</pre>"; die;
+        return $address_list;
     }
 }

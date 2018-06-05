@@ -51,10 +51,13 @@ $route['set_user_account_info_more'] = 'user_center/set_user_account_info_more';
 $route['reset_user_password'] = 'user_center/reset_user_password'; //更改密码
 $route['add_receipt_info'] = "user_center/add_receipt_info"; //添加收货信息
 $route['get_trade_list'] = "user_center/get_trade_list"; //获取用户订单列表
+$route['get_refund_list'] = "user_center/get_refund_list"; //获取退款工单列表
+$route['get_address_list'] = "user_center/get_address_list"; //获取退款工单列表
 
 /*商品相关*/
 $route['push_goods'] = "goods_center/push_goods"; //发布商品
 $route['goods_list'] = "goods_center/goods_list"; //商品列表
+$route['goods_info'] = "goods_center/get_goods_info"; //商品详情
 
 /*商城相关*/
 $route['create_order'] = "mall_center/create_order"; //创建订单
@@ -63,6 +66,8 @@ $route['trade_deliver_goods'] = "mall_center/trade_deliver_goods"; //订单发�
 $route['sign_trade'] = "mall_center/sign_trade"; //签收订单
 $route['cancel_trade'] = "mall_center/cancel_trade"; //用户取消订单（未付款）
 $route['create_refund'] = "mall_center/create_refund_work_order"; //用户发起退款
+$route['get_refund_info'] = "mall_center/get_refund_info"; //获取退款工单详情
+$route['seller_active_refund'] = "mall_center/seller_active_refund"; //商家操作退款
 
 
 $route['404_override'] = '';
